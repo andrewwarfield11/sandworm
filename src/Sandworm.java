@@ -1,50 +1,4 @@
-// Sandworm.java
-// Roger Mailler, January 2009, adapted from
-// Andrew Davison, April 2005, ad@fivedots.coe.psu.ac.th
 
-/* A worm moves around the screen and the user must
- click (press) on its head to complete the game.
-
- If the user misses the worm's head then a blue box
- will be added to the screen (if the worm's body was
- not clicked upon).
-
- A worm cannot move over a box, so the added obstacles
- *may* make it easier to catch the worm.
-
- A worm starts at 0 length and increases to a maximum
- length which it keeps from then on.
-
- A score is displayed on screen at the end, calculated
- from the number of boxes used and the time taken. Less
- boxes and less time mean a higher score.
-
- -------------
-
- Uses full-screen exclusive mode, active rendering,
- and double buffering/page flipping.
-
- On-screen pause and quit buttons.
-
- Using Java 3D's timer: J3DTimer.getValue()
- *  nanosecs rather than millisecs for the period
-
- Average FPS / UPS
- 20			50			80			100
- Win 98:         20/20       50/50       81/83       84/100
- Win 2000:       20/20       50/50       60/83       60/100
- Win XP (1):     20/20       50/50       74/83       76/100
- Win XP (2):     20/20       50/50       83/83       85/100
-
- Located in /WormFSEM
-
- Updated: 12th Feb 2004
- * added extra sleep to the end of our setDisplayMode();
-
- * moved createBufferStrategy() call to a separate
- setBufferStrategy() method, with added extras
- ----
- */
 
 import java.awt.Color;
 import java.awt.Font;
@@ -60,8 +14,6 @@ public class Sandworm extends GameFrame {
 	private static int DEFAULT_FPS = 100;
 
 	private Worm worm; // the worm
-	//private Obstacles obs; // the obstacles
-	private int boxesUsed = 0;
 
 	private int score = 0;
 	private Font font;
@@ -77,7 +29,7 @@ public class Sandworm extends GameFrame {
 	
     private DecimalFormat df = new DecimalFormat("0.##");  // 2 dp
 
-	private double speed = 4;
+	private double speed;
 
 
 	public Sandworm(long period) {
@@ -87,8 +39,8 @@ public class Sandworm extends GameFrame {
 	@Override
 	protected void simpleInitialize() {
 		// create game components
-		//obs = new Obstacles(this);
-		worm = new Worm(pWidth/2, pHeight/2, 20, 5, 4);
+		speed = 3;
+		worm = new Worm(pWidth/2, pHeight/2, 50, 10, speed);
 
 		// set up message font
 		font = new Font("SansSerif", Font.BOLD, 24);
@@ -106,9 +58,9 @@ public class Sandworm extends GameFrame {
 		else if (isOverQuitButton)
 			running = false;
 		else {
-			if (!isPaused && !gameOver) {
+			/*if (!isPaused && !gameOver) {
 				worm.setDest(x,y);
-			}
+			}*/
 		}
 	} // end of testPress()
 
@@ -127,6 +79,9 @@ public class Sandworm extends GameFrame {
 		if (running) { // stops problems with a rapid move after pressing 'quit'
 			isOverPauseButton = pauseArea.contains(x, y) ? true : false;
 			isOverQuitButton = quitArea.contains(x, y) ? true : false;
+			if (!isPaused && !gameOver) {
+				worm.setDest(x,y);
+			}
 		}
 	}
 

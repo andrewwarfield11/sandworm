@@ -1,16 +1,10 @@
 
-// Worm.java
-// Andrew Davison, April 2005, ad@fivedots.coe.psu.ac.th
-
-/* Contains the worm's internal data structure (a circular buffer)
-   and code for deciding on the position and compass direction
-   of the next worm move.
-*/
 
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
+import java.lang.Math;
 
 
 public class Worm
@@ -22,6 +16,7 @@ public class Worm
 
   private double width, height;   // panel dimensions
   private double speed;
+  private int dir; // 0 for not moving, 1 for left, 2 for right
 
 
   public Worm(double x, double y, double w, double h, double s) {
@@ -30,14 +25,52 @@ public class Worm
     dest = new Point2D.Double(x,y);
     body = new Ellipse2D.Double(loc.getX(),loc.getY(), w,h);
     speed = s;
-
+    dir = 0;
 
   } // end of Worm()
 
+  private boolean isAtDest() {
+    if( loc.getY() == dest.getY() && loc.getX() == dest.getX() ) {
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
+
+  private boolean isOnScreen() {
+    if(loc.getX() < 0 || loc.getY() < 0 || loc.getX() > GameFrame.pWidth
+            || loc.getY() > GameFrame.pHeight) {
+      return false;
+    }
+    else
+      return true;
+  }
+
+  private boolean willPassDest() {
+    if( Math.abs(loc.getX()-dest.getX()) <= xOffset || Math.abs(loc.getY() - dest.getY()) <= yOffset) {
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
+
   public void move() {
-    loc.setLocation(loc.getX() + xOffset, loc.getY() + yOffset);
-    body.x = (int)loc.getX() + (int)xOffset;
-    body.y = (int)loc.getY() + (int)yOffset;
+    /* if at destination, do nothing
+    if worm will pass destination in this move, then stop at the destination
+    otherwise, do a normal move
+    */
+    if(!isAtDest() && isOnScreen()) {
+      loc.setLocation(loc.getX() + xOffset, loc.getY() + yOffset);
+      body.x = loc.getX() + xOffset;
+      body.y = loc.getY() + yOffset;
+      if(willPassDest()) {
+        loc.setLocation(dest.getX(),dest.getY());
+        body.x = dest.getX();
+        body.y = dest.getY();
+      }
+    }
   }  // end of move()
 
   public void setDest(double x, double y) {
@@ -47,20 +80,11 @@ public class Worm
 
     // determine distance travelled this frame for x and y
     double run = dest.getX() - loc.getX();
-    System.out.printf("run: %f\n",run);
     double rise = dest.getY() - loc.getY();
-    System.out.printf("rise %f\n",rise);
     double hypotenuse = Math.sqrt((run*run) + (rise*rise));
-    System.out.printf("hypotenuse: %f\n",hypotenuse);
-    double distance = dest.distance(loc);
-    System.out.printf("distance: %f\n",distance);
-    if(hypotenuse != distance)
-      System.out.println("I suck at math.");
+
     xOffset = run / hypotenuse * speed;
     yOffset = rise / hypotenuse * speed;
-    System.out.println("run/hypotenuse:" + (double)run/hypotenuse);
-    System.out.printf("x: %f y: %f xoffset: %f yoffset: %f\n",x, y, xOffset,yOffset);
-    System.out.println("speed: " + speed);
   }
 
   public double getXDest() {
@@ -73,7 +97,6 @@ public class Worm
 
 
   public void draw(Graphics g)
-  // draw a black worm with a red head
   {
     g.setColor(Color.darkGray);
     g.fillOval((int)body.x,(int)body.y,(int)body.getWidth(),(int)body.getHeight());

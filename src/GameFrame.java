@@ -1,6 +1,4 @@
-// GameFrame.java
-// Roger Mailler, January 2009, adapted from
-// 		Andrew Davison, April 2005, ad@fivedots.coe.psu.ac.th
+
 
 import java.awt.BufferCapabilities;
 import java.awt.Color;
@@ -41,7 +39,7 @@ public abstract class GameFrame extends JFrame implements Runnable {
 	private static int NUM_FPS = 10;
 	// number of FPS values stored to get an average
 
-	protected int pWidth, pHeight; // panel dimensions
+	protected static int pWidth, pHeight; // panel dimensions
 
 	private Thread animator; // the thread that performs the animation
 	protected boolean running = false; // used to stop the animation thread
